@@ -1,12 +1,16 @@
 """
 Borrow from Lemoine, & Matt Gregory. (2015). ecopy: First release (v0.8). Zenodo. https://doi.org/10.5281/zenodo.29232
+
+https://github.com/ArnaoutLab/diversity?tab=readme-ov-file#similarity-sensitive-diversity
+https://arxiv.org/abs/1404.6520
+
 """
 
 import numpy as np
 from pandas import DataFrame, Series
 
 
-def diversity(x, method='shannon', breakNA=True, num_equiv=True):
+def diversity(x, method='shannon', breakNA=True):
     '''
     Docstring for function ecopy.diversity
     ========================
@@ -28,26 +32,19 @@ def diversity(x, method='shannon', breakNA=True, num_equiv=True):
             H = -sum( p_i * log(p_i) )
             where p_i is relative abundance of species i
         gini-simpson: Gini-Simpson
-            D = 1 - sum( p_i^2 )
+            \lambda = 1 - sum( p_i^2 )
         simpson: Simpson's D
-            D = sum(p_i^2)
+            \lambda = sum(p_i^2)
         dominance: Dominance index
-            D = max(p_i)
+            \lambda = max(p_i)
         spRich: Species richness
-            D = Number of non-zero observations
+            \lambda = Number of non-zero observations
         even: Evenness of a sample. This is Shannon's H divided by the
             log of species richness
     breakNA: should the process halt if the matrix contains any NAs?
         if False, then NA's undergo pairwise deletion during distance calculation,
         such that when calculating the distance between two rows, if any
         species is missing from a row, that species is removed from both rows
-    num_equiv: Whether or not the diversity index return species number equivalents,
-        i.e. the number of species of identical abundance. This has better properties 
-        than raw diversity. The number equivalents are as follows:
-
-        shannon: np.exp(H)
-        gini-simpson: 1 / (1-D)
-        simpson: 1/D
 
     Example
     --------
@@ -56,9 +53,14 @@ def diversity(x, method='shannon', breakNA=True, num_equiv=True):
     
     div = ep.diversity(varespec, 'shannon')
     '''
-    listofmethods = ['shannon', 'gini-simpson', 'simpson', 'dominance', 'spRich', 'even']
+    listofmethods = ['shannon', 'gini-simpson',
+                     'inverse-simpson',
+                     'simpson',
+                     'dominance',
+                     'spRich',
+                     'even']
     if not isinstance(breakNA, bool):
-        msg = 'removaNA argument must be boolean'
+        msg = 'remove NA argument must be boolean'
         raise ValueError(msg)
     if method not in listofmethods:
         msg = 'method argument {0!s} is not an accepted metric'.format(method)
@@ -89,19 +91,16 @@ def diversity(x, method='shannon', breakNA=True, num_equiv=True):
     z = z / z.sum(axis=1)[:, np.newaxis]
     if method == 'shannon':
         div = np.apply_along_axis(shannonFunc, 1, z)
-        if num_equiv:
-            div = np.exp(div)
         return div
     if method == 'gini-simpson':
-        div = np.apply_along_axis(giniFunc, 1, z)
-        if num_equiv:
-            div = 1. / (1. - div)
-        return div
+        div = np.apply_along_axis(simpson, 1, z)
+        return 1. - div
     if method == 'simpson':
         div = np.apply_along_axis(simpson, 1, z)
-        if num_equiv:
-            div = 1. / div
         return div
+    if method == 'inverse-simpson':
+        div = np.apply_along_axis(simpson, 1, z)
+        return 1. / div
     if method == 'dominance':
         div = np.apply_along_axis(dom, 1, z)
         return div
@@ -203,4 +202,5 @@ def evenFunc(y):
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod(verbose=True)
