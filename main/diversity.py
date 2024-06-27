@@ -93,8 +93,8 @@ def diversity(x, method='shannon', breakNA=True):
         div = np.apply_along_axis(shannonFunc, 1, z)
         return div
     if method == 'gini-simpson':
-        div = np.apply_along_axis(simpson, 1, z)
-        return 1. - div
+        div = np.apply_along_axis(giniFunc, 1, z)
+        return div
     if method == 'simpson':
         div = np.apply_along_axis(simpson, 1, z)
         return div
