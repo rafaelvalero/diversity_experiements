@@ -10,7 +10,10 @@ import numpy as np
 from pandas import DataFrame, Series
 
 
-def diversity(x, method='shannon', breakNA=True):
+def diversity(x,
+              method='shannon',
+              breakNA=True,
+              num_equiv=False):
     '''
     Docstring for function ecopy.diversity
     ========================
@@ -46,12 +49,64 @@ def diversity(x, method='shannon', breakNA=True):
         such that when calculating the distance between two rows, if any
         species is missing from a row, that species is removed from both rows
 
+    num_equiv: Whether or not the diversity index return species number equivalents,
+        i.e. the number of species of identical abundance. This has better properties
+        than raw diversity. The number equivalents are as follows:
+
+        shannon: np.exp(H)
+        gini-simpson: 1 / (1-D)
+        simpson: 1/D
     Example
     --------
     import ecopy as ep
     varespec = ep.load_data('varespec')
     
     div = ep.diversity(varespec, 'shannon')
+
+
+    >>> import pandas as pd
+    >>> counts_1a = pd.DataFrame({"Dataset 1a": [30, 1, 1, 1, 1, 1]},\
+    index=["apple", "orange", "banana", "pear", "blueberry", "grape"])
+    >>> richness(counts_1a.values)
+    6.0
+    >>> diversity(counts_1a.T,\
+          method='spRich',\
+          num_equiv=True)
+    array([6.])
+    >>> np.exp(shannonFunc(counts_1a.values))
+    np.float64(1.896549191899248)
+    >>> diversity(counts_1a.T,\
+          method='shannon',\
+          num_equiv=True)
+    array([1.89654919])
+    >>> shannonFunc(counts_1a.values)
+    np.float64(0.640036020064709)
+    >>> diversity(counts_1a.T,\
+          method='shannon',\
+          num_equiv=False)
+    array([0.64003602])
+    >>> diversity(counts_1a.T,\
+              method='simpson',\
+              num_equiv=False)
+    array([0.73877551])
+    >>> diversity(counts_1a.T,\
+              method='simpson',\
+              num_equiv=True)
+    array([1.35359116])
+    >>> data_pantanal_wetlands = {'capybara': 1000000, \
+                               'giant_anteater': 250, \
+                               'giat_river_otter': 500, \
+                               'jaguar': 400, \
+                               'mash_deer': 10000, \
+                               'ocelot': 500, \
+                               'yacare_caiman': 1000000}
+    >>> simpson(np.array([i for i in data_pantanal_wetlands.values()]))
+    np.float64(0.4942503933180924)
+    >>> diversity(pd.DataFrame.from_dict(data_pantanal_wetlands, orient = 'index').T,\
+              method='simpson',\
+              num_equiv=False)
+    array([0.49425039])
+
     '''
     listofmethods = ['shannon', 'gini-simpson',
                      'inverse-simpson',
@@ -91,24 +146,34 @@ def diversity(x, method='shannon', breakNA=True):
     z = z / z.sum(axis=1)[:, np.newaxis]
     if method == 'shannon':
         div = np.apply_along_axis(shannonFunc, 1, z)
+        if num_equiv:
+            div = np.exp(div)
         return div
     if method == 'gini-simpson':
         div = np.apply_along_axis(giniFunc, 1, z)
+        if num_equiv:
+            div = 1. / (1. - div)
         return div
     if method == 'simpson':
         div = np.apply_along_axis(simpson, 1, z)
+        if num_equiv:
+            div = 1. / div
         return div
     if method == 'inverse-simpson':
         div = np.apply_along_axis(simpson, 1, z)
         return 1. / div
     if method == 'dominance':
         div = np.apply_along_axis(dom, 1, z)
+        if num_equiv:
+            div = 1. / div
         return div
     if method == 'spRich':
         div = np.apply_along_axis(richness, 1, z)
         return div
     if method == 'even':
         div = np.apply_along_axis(evenFunc, 1, z)
+        if num_equiv:
+            div = 1. / div
         return div
 
 
@@ -133,6 +198,17 @@ def shannonFunc(y):
 
 
 def giniFunc(y):
+    """
+    Example from https://www.omnicalculator.com/ecology/shannon-index#:~:text=For%20example%2C%20the%20index%20for,values%20between%200%20and%201.
+    >>> import numpy as np
+    >>> data_example = {'scarlet_macaw': 5,\
+                      'blue_morpho_butterfly': 12,\
+                      'capybara': 2,\
+                      'three_toed_sloth': 5,\
+                      'jaguar': 1}
+    >>> giniFunc(np.array([i for i in data_example.values()]))
+    np.float64(0.6816)
+    """
     notabs = ~np.isnan(y)
     t = y[notabs] / np.sum(y[notabs])
     D = 1 - np.sum(t ** 2)
@@ -167,6 +243,17 @@ def simpson(y):
 
 
 def dom(y):
+    """
+    Example from https://www.omnicalculator.com/ecology/shannon-index#:~:text=For%20example%2C%20the%20index%20for,values%20between%200%20and%201.
+    >>> import numpy as np
+    >>> data_example = {'scarlet_macaw': 5,\
+                      'blue_morpho_butterfly': 12,\
+                      'capybara': 2,\
+                      'three_toed_sloth': 5,\
+                      'jaguar': 1}
+    >>> dom(np.array([i for i in data_example.values()]))
+    np.float64(0.48)
+    """
     notabs = ~np.isnan(y)
     t = y[notabs] / np.sum(y[notabs])
     D = np.max(t)
@@ -192,6 +279,17 @@ def richness(y):
 
 
 def evenFunc(y):
+    """
+    Example from https://www.omnicalculator.com/ecology/shannon-index#:~:text=For%20example%2C%20the%20index%20for,values%20between%200%20and%201.
+    >>> import numpy as np
+    >>> data_example = {'scarlet_macaw': 5,\
+                      'blue_morpho_butterfly': 12,\
+                      'capybara': 2,\
+                      'three_toed_sloth': 5,\
+                      'jaguar': 1}
+    >>> evenFunc(np.array([i for i in data_example.values()]))
+    np.float64(0.8244454062503984)
+    """
     notabs = ~np.isnan(y)
     t = y[notabs] / np.sum(y[notabs])
     n = float(np.sum(t != 0))
