@@ -143,7 +143,7 @@ def diversity(x,
             msg = 'Array contains negative values'
             raise ValueError(msg)
         z = np.array(x, 'float')
-    z = z / z.sum(axis=1)[:, np.newaxis]
+    z = z / np.nansum(z,axis=1)[:, np.newaxis]
     if method == 'shannon':
         div = np.apply_along_axis(shannonFunc, 1, z)
         if num_equiv:

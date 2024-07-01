@@ -39,6 +39,9 @@ print(diversity(counts_1a.T,
 print('Gini-Simpson Index')
 print(metacommunity_1a.subcommunity_diversity(viewpoint=2, measure='alpha'))
 print(1/simpson(counts_1a.values))
+print(diversity(counts_1a.T,
+          method='',
+          num_equiv=True))
 print('Berger-Parker index')
 print(metacommunity_1a.subcommunity_diversity(viewpoint=np.inf, measure='alpha'))
 print(1/dom(counts_1a.values))
