@@ -16,6 +16,7 @@ data = pd.DataFrame({"example_1": [30, 1, 1, 1, 1, 1],
                      "example_4": [2, np.nan, np.nan, np.nan, np.nan, np.nan],
                      "example_5": [1, 1, np.nan, np.nan, np.nan, np.nan],
                      "example_6": [np.nan, 1, np.nan, np.nan, np.nan, np.nan],
+                     "example_7": [1, 1, 0, 0, 0, 0],
                      },
                     index=["apple", "orange", "banana", "pear", "blueberry", "grape"])
 
@@ -49,7 +50,19 @@ print(output)
 """ 
 Subcommittees
 """
+data = pd.DataFrame({ "example_2": [4, 6, 6, 6, 6, 5],
+                     "example_4": [2, 0, 0, 0, 0, 0],
+                "example_7": [1, 1, 0, 0, 0, 0], },
+                    index=["apple", "orange", "banana", "pear", "blueberry", "grape"])
 
+print(data)
 
+metacommunity = Metacommunity(data)
+
+output = metacommunity.to_dataframe(viewpoint=[0, 1, 2, np.inf])
+output.to_csv("comparison1.csv")
+
+metacommunity.subcommunity_diversity(viewpoint=1,
+                                      measure='normalized_rho')
 
 
