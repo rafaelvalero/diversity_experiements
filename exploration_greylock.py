@@ -40,8 +40,18 @@ print('Gini-Simpson Index')
 print(metacommunity_1a.subcommunity_diversity(viewpoint=2, measure='alpha'))
 print(1/simpson(counts_1a.values))
 print(diversity(counts_1a.T,
-          method='',
+          method='simpson',
           num_equiv=True))
 print('Berger-Parker index')
 print(metacommunity_1a.subcommunity_diversity(viewpoint=np.inf, measure='alpha'))
 print(1/dom(counts_1a.values))
+
+
+# Some little examples
+
+counts_1a = pd.DataFrame({"Dataset 1a": [2, 1]},
+   index=["apple", "orange"])
+
+print(diversity(counts_1a.T,
+          method='simpson',
+          num_equiv=True))
