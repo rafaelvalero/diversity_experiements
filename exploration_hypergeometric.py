@@ -51,27 +51,195 @@ for sample in samples_list:
     dict_['probability'] = multivariate_hypergeom.pmf(x=sample,
                                                       m=population,
                                                       n=np.sum(sample))
-
+    print(" Greylock ")
     try:
-        print(" Greylock ")
-        print(metacommunity_1a.subcommunity_diversity(viewpoint=0,
-                                                      measure="rho")[0])
-        print(metacommunity_1a.subcommunity_diversity(viewpoint=0,
-                                                      measure="normalized_rho")[0])
         dict_['rho'] = metacommunity_1a.subcommunity_diversity(viewpoint=0,
                                                                measure="rho")[0]
+    except Exception as e:
+        print(e)
+    try:
         dict_['normalized_rho'] = metacommunity_1a.subcommunity_diversity(viewpoint=0,
                                                                           measure="normalized_rho")[0]
+    except Exception as e:
+        print(e)
+    try:
         dict_['gamma'] = metacommunity_1a.subcommunity_diversity(viewpoint=0,
                                                                  measure="gamma")[0]
+    except Exception as e:
+        print(e)
+    try:
         dict_['normalized_alpha'] = metacommunity_1a.subcommunity_diversity(viewpoint=0,
                                                                             measure="normalized_alpha")[0]
+    except Exception as e:
+        print(e)
+    try:
         dict_['alpha'] = metacommunity_1a.subcommunity_diversity(viewpoint=0,
                                                                  measure="alpha")[0]
     except Exception as e:
         print(e)
+
     list_.append(dict_)
 # comparing
 comparison = pd.DataFrame(list_).round(2)
 #comparison.round(2)
 print(comparison)
+
+"""
+let create another examples
+"""
+viewpoint = 0
+population = [89, 10, 1]
+
+samples_list = [[2, 0, 0],
+                [1, 1, 0],
+                [0, 2, 0],
+                [1, 1, 1],
+                [50, 1, 0],
+                [50, 1, 1],
+                [0, 0, 1],
+                [9, 1, 0], ]
+#population]
+
+list_ = []
+for sample in samples_list:
+    print(sample, multivariate_hypergeom.pmf(x=sample,
+                                             m=population,
+                                             n=np.sum(sample)))
+    counts_1a = pd.DataFrame({"sample1": sample,
+                              "rest_population": np.array(population) - np.array(sample)},
+                             index=["apple", "orange", "tomatoes"])
+    metacommunity_1a = Metacommunity(counts_1a)
+    dict_ = {}
+    dict_['sample'] = sample
+    dict_['probability'] = multivariate_hypergeom.pmf(x=sample,
+                                                      m=population,
+                                                      n=np.sum(sample))
+    print(" Greylock ")
+    try:
+        dict_['rho'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                               measure="rho")[0]
+    except Exception as e:
+        print(e)
+    try:
+        dict_['normalized_rho'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                          measure="normalized_rho")[0]
+    except Exception as e:
+        print(e)
+    try:
+        dict_['gamma'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                 measure="gamma")[0]
+    except Exception as e:
+        print(e)
+    try:
+        dict_['normalized_alpha'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                            measure="normalized_alpha")[0]
+    except Exception as e:
+        print(e)
+
+    try:
+        dict_['potential_alpha_gap'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                               measure="normalized_alpha")[0]
+
+        if np.sum(metacommunity_1a.counts.sample1) >= metacommunity_1a.counts.sample1.shape[0]:
+            dict_['potential_alpha_gap'] = (metacommunity_1a.counts.sample1.shape[0] -
+                                            dict_['normalized_alpha']) / \
+                                           metacommunity_1a.counts.sample1.shape[0]
+        # here just the number of people available
+        elif np.sum(metacommunity_1a.counts.sample1) < metacommunity_1a.counts.sample1.shape[0]:
+            dict_['potential_alpha_gap'] = (np.sum(metacommunity_1a.counts.sample1) -
+                                            dict_['normalized_alpha']) / \
+                                           np.sum(metacommunity_1a.counts.sample1)
+
+    except Exception as e:
+        print(e)
+    try:
+        dict_['alpha'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                 measure="alpha")[0]
+    except Exception as e:
+        print(e)
+
+    list_.append(dict_)
+# comparing
+comparison_v2 = pd.DataFrame(list_).round(2)
+#comparison.round(2)
+print(comparison_v2)
+comparison_v2.to_csv('v2_examples.csv')
+"""
+Changing view points
+"""
+viewpoint = 1
+population = [89, 10, 1]
+
+samples_list = [[2, 0, 0],
+                [1, 1, 0],
+                [0, 2, 0],
+                [1, 1, 1],
+                [50, 1, 0],
+                [50, 1, 1],
+                [0, 0, 1],
+                [9, 1, 0],
+                population]
+
+list_ = []
+for sample in samples_list:
+    print(sample, multivariate_hypergeom.pmf(x=sample,
+                                             m=population,
+                                             n=np.sum(sample)))
+    counts_1a = pd.DataFrame({"sample1": sample,
+                              "rest_population": np.array(population) - np.array(sample)},
+                             index=["apple", "orange", "tomatoes"])
+    metacommunity_1a = Metacommunity(counts_1a)
+    dict_ = {}
+    dict_['sample'] = sample
+    dict_['probability'] = multivariate_hypergeom.pmf(x=sample,
+                                                      m=population,
+                                                      n=np.sum(sample))
+    print(" Greylock ")
+    try:
+        dict_['rho'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                               measure="rho")[0]
+    except Exception as e:
+        print(e)
+    try:
+        dict_['normalized_rho'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                          measure="normalized_rho")[0]
+    except Exception as e:
+        print(e)
+    try:
+        dict_['gamma'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                 measure="gamma")[0]
+    except Exception as e:
+        print(e)
+    try:
+        dict_['normalized_alpha'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                            measure="normalized_alpha")[0]
+    except Exception as e:
+        print(e)
+
+    try:
+
+        if np.sum(metacommunity_1a.counts.sample1) >= metacommunity_1a.counts.sample1.shape[0]:
+            dict_['potential_alpha_gap'] = np.abs((metacommunity_1a.counts.sample1.shape[0] -
+                                                   dict_['normalized_alpha']) / \
+                                                  metacommunity_1a.counts.sample1.shape[0])
+        # here just the number of people available
+        elif np.sum(metacommunity_1a.counts.sample1) < metacommunity_1a.counts.sample1.shape[0]:
+            dict_['potential_alpha_gap'] = np.abs((np.sum(metacommunity_1a.counts.sample1) -
+                                                   dict_['normalized_alpha']) / \
+                                                  np.sum(metacommunity_1a.counts.sample1))
+
+    except Exception as e:
+        print(e)
+    try:
+        dict_['alpha'] = metacommunity_1a.subcommunity_diversity(viewpoint=viewpoint,
+                                                                 measure="alpha")[0]
+    except Exception as e:
+        print(e)
+
+    list_.append(dict_)
+# comparing
+comparison_v3 = pd.DataFrame(list_).round(2)
+#comparison.round(2)
+print(comparison_v3)
+
+comparison_v3.to_csv('v3_examples.csv')
